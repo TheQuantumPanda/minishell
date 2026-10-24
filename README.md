@@ -1,10 +1,12 @@
 # C++ Shell
 
-A lightweight Unix-style command-line shell built from scratch using **C++17**.
+A lightweight Unix-style command-line shell built using **C++17**.
 
-This project explores the fundamentals of operating systems and shell development, including command parsing, process creation, executable resolution, and file descriptor management.
+This project is part of my journey through the [CodeCrafters](https://codecrafters.io/) *Build Your Own Shell* challenge, where I'm learning how shells work by implementing one myself.
 
-The goal is to gradually build a functional Unix-style shell while gaining a deeper understanding of how command interpreters work internally.
+It explores operating system fundamentals, including command parsing, process creation, executable resolution, and file descriptor management.
+
+The goal is to gradually build a functional Unix-style shell while gaining a deeper understanding of what happens behind the terminal.
 
 ## Features
 
@@ -15,7 +17,7 @@ The goal is to gradually build a functional Unix-style shell while gaining a dee
 - `echo` — Print arguments to standard output.
 - `type` — Identify shell built-ins or locate executables in PATH.
 - `pwd` — Display the current working directory.
-- `cd` — Change the working directory, including support for home directory expansion (`~`).
+- `cd` — Change the working directory, including basic home directory expansion (`~`).
 
 **Command Execution**
 - Execute external programs found in the system PATH.
@@ -35,6 +37,7 @@ The goal is to gradually build a functional Unix-style shell while gaining a dee
 - Supports redirection for both built-in commands and external programs.
 - Uses `open()` and `dup2()` for file descriptor manipulation.
 - Existing output files are overwritten.
+- Redirection operators must be separate arguments, with spaces around them.
 
 ## Getting Started
 
@@ -42,31 +45,38 @@ The goal is to gradually build a functional Unix-style shell while gaining a dee
 
 - Linux or another compatible POSIX environment
 - A C++17-compatible compiler (GCC or Clang)
+- Git (for cloning the repository)
 
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/<username>/cpp-shell.git
-cd cpp-shell
+git clone https://github.com/TheQuantumPanda/minishell.git
+cd minishell
 ```
-
-Replace `<username>` with your GitHub username.
 
 ### Build
 
 Compile directly using G++:
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -Wpedantic main.cpp -o cpp-shell
+g++ -std=c++17 -Wall -Wextra -Wpedantic main.cpp -o minishell
 ```
 
 ### Run
 
 ```bash
-./cpp-shell
+./minishell
+```
+
+You should now see the shell prompt:
+
+```text
+$
 ```
 
 ## Usage Examples
+
+The following examples illustrate supported commands. Directory paths and executable locations may vary depending on your system.
 
 **Built-in commands**
 
@@ -92,6 +102,19 @@ $ pwd
 /tmp
 
 $ cd ~
+```
+
+**Quoting and escaping**
+
+```text
+$ echo "Hello    World"
+Hello    World
+
+$ echo 'Hello World'
+Hello World
+
+$ echo Hello\ World
+Hello World
 ```
 
 **Executing external commands**
@@ -123,6 +146,10 @@ The shell follows a basic **Read–Parse–Execute** cycle:
 5. **Execute:** Run built-ins directly or use `fork()` and `execv()` for external programs.
 6. **Repeat:** Continue accepting commands until `exit` or end-of-file.
 
+Built-in commands execute within the shell process. For external commands, the shell searches the system PATH, creates a child process, executes the program, and waits for it to finish.
+
+For output redirection, external commands redirect stdout in the child process. Built-in commands use a `RedirectionGuard` to temporarily redirect stdout and restore it afterward.
+
 ### Core System Calls
 
 | Function | Purpose |
@@ -135,67 +162,18 @@ The shell follows a basic **Read–Parse–Execute** cycle:
 | `dup()` / `dup2()` | Save and redirect file descriptors |
 | `close()` | Close file descriptors |
 
-## Project Roadmap
+## Known Limitations
 
-### Phase 1 — Shell Fundamentals
-- [x] Interactive command prompt
-- [x] Basic command parsing
-- [x] Built-in commands
-- [x] PATH resolution
-- [x] External command execution
-- [x] Single and double quotes
-- [x] Basic escape sequences
-- [x] Standard output redirection
-
-### Phase 2 — Redirection and Parser Improvements
-- [ ] Append redirection (`>>`)
-- [ ] Standard error redirection (`2>`, `2>>`)
-- [ ] Input redirection (`<`)
-- [ ] Improved parsing and error handling
-- [ ] Direct executable paths (`./program`)
-- [ ] Automated tests
-
-### Phase 3 — Pipelines and Shell Operators
-- [ ] Command pipelines (`|`)
-- [ ] Sequential execution (`;`)
-- [ ] Conditional execution (`&&`, `||`)
-- [ ] Environment variable expansion
-- [ ] Exit status tracking (`$?`)
-
-### Phase 4 — Interactive Shell Improvements
-- [ ] Command history
-- [ ] Arrow-key navigation
-- [ ] Tab completion
-- [ ] Signal handling
-- [ ] Background processes (`&`)
-- [ ] Basic job control
-
-## Current Limitations
-
-This project is under active development and is not intended to replace Bash, Zsh, or other production shells.
+This project is still under development and is not intended to replace Bash, Zsh, or other production shells.
 
 Currently:
-- Pipelines and command chaining are not supported.
-- Input and stderr redirection are not implemented.
-- Environment variable expansion is not available.
-- Redirection operators must be separated from adjacent arguments by whitespace.
-- Direct executable paths such as `./program` are not yet supported.
-- Command history and job control are not implemented.
 
-## Project Goals
+- Pipelines (`|`) and command chaining (`&&`, `||`, `;`) are not supported.
+- Input redirection (`<`), stderr redirection (`2>`), and append redirection (`>>`) are not implemented.
+- Only one output redirection is processed per command, and operators must be separated from adjacent arguments by whitespace.
+- The parser does not fully distinguish quoted redirection symbols from actual operators or report unmatched quotes.
+- Environment variable expansion and wildcard expansion are not supported.
+- Direct executable paths such as `./program` are not supported.
+- Built-in commands implement basic behavior without all standard shell options.
+- Command history, tab completion, and job control are not implemented.
 
-Through this project, I aim to improve my understanding of:
-
-- C++ and modern programming practices
-- Linux and POSIX system programming
-- Process creation and management
-- File descriptors and I/O redirection
-- Command-line parsing
-- Operating system fundamentals
-- Modular software architecture
-
-## Development Status
-
-**Work in Progress**
-
-The shell is being developed incrementally, with an emphasis on understanding and implementing core functionality before introducing more advanced features.
